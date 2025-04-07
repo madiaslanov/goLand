@@ -15,12 +15,10 @@ func main() {
 
 	router := gin.Default()
 
-	// Раздача HTML
 	router.GET("/", func(c *gin.Context) {
 		c.File("./web/index.html")
 	})
 
-	// Регистрируем все API-роуты
 	controller.NewTaskController(router, taskUsecase)
 
 	router.Run(":8080")
