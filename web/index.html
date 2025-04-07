@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo App</title>
+</head>
+<body>
+<h1>Создать задачу</h1>
+<form id="taskForm">
+    <input type="text" id="title" placeholder="Название" required><br>
+    <input type="text" id="description" placeholder="Описание"><br>
+    <label><input type="checkbox" id="completed"> Выполнено</label><br>
+    <button type="submit">Добавить</button>
+</form>
+
+<p id="response"></p>
+
+<script>
+    document.getElementById("taskForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const data = {
+            title: document.getElementById("title").value,
+            description: document.getElementById("description").value,
+            completed: document.getElementById("completed").checked
+        };
+
+        try {
+            const response = await fetch("/tasks", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`Ошибка: ${response.status} - ${text}`);
+            }
+
+            const result = await response.json();
+            document.getElementById("response").innerText = `✅ Добавлено: ${result.title}`;
+        } catch (err) {
+            document.getElementById("response").innerText = `❌ ${err.message}`;
+            console.error(err);
+        }
+    });
+</script>
+</body>
+</html>
