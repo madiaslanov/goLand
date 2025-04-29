@@ -1,15 +1,14 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"todoApp/internal/config"
-	"todoApp/internal/controller"
-	"todoApp/internal/middleware"
-	"todoApp/internal/repository"
-	"todoApp/internal/service"
-
-	"github.com/gorilla/mux"
+	"todoapp/internal/config"
+	"todoapp/internal/controller"
+	"todoapp/internal/middleware"
+	"todoapp/internal/repository"
+	"todoapp/internal/service"
 )
 
 func main() {
