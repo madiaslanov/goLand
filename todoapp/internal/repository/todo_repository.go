@@ -13,13 +13,16 @@ func NewTodoRepository(db *sql.DB) *TodoRepository {
 	return &TodoRepository{db: db}
 }
 
-func (r *TodoRepository) GetTodoByID(id int) (models.Todo, error) {
+func (r *TodoRepository) GetTodoByID(id int) (*models.Todo, error) {
 	var todo models.Todo
 	err := r.db.QueryRow(`
 		SELECT id, title, description, status, user_id, created_at, updated_at
 		FROM todos WHERE id = $1`, id).
 		Scan(&todo.ID, &todo.Title, &todo.Description, &todo.Status, &todo.UserID, &todo.CreatedAt, &todo.UpdatedAt)
-	return todo, err
+	if err != nil {
+		return nil, err
+	}
+	return &todo, nil
 }
 
 func (r *TodoRepository) UpdateTodo(todo models.Todo) error {
@@ -36,5 +39,31 @@ func (r *TodoRepository) CreateTodo(todo models.Todo) error {
 		INSERT INTO todos (title, description, status, user_id, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, NOW(), NOW())`,
 		todo.Title, todo.Description, todo.Status, todo.UserID)
+	return err
+}
+
+func (r *TodoRepository) GetAllTodos() ([]models.Todo, error) {
+	rows, err := r.db.Query(`
+		SELECT id, title, description, status, user_id, created_at, updated_at
+		FROM todos`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var todos []models.Todo
+	for rows.Next() {
+		var todo models.Todo
+		err := rows.Scan(&todo.ID, &todo.Title, &todo.Description, &todo.Status, &todo.UserID, &todo.CreatedAt, &todo.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		todos = append(todos, todo)
+	}
+	return todos, nil
+}
+
+func (r *TodoRepository) DeleteTodo(id int) error {
+	_, err := r.db.Exec(`DELETE FROM todos WHERE id = $1`, id)
 	return err
 }

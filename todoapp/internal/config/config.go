@@ -2,24 +2,48 @@ package config
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
-	_ "github.com/mattn/go-sqlite3"
+	"os"
+
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func InitDB() *sql.DB {
-	db, err := sql.Open("sqlite3", "./todos.db")
+	// Загружаем переменные окружения из .env файла
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Ошибка загрузки .env файла")
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS todos (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		title TEXT NOT NULL,
-		completed BOOLEAN NOT NULL DEFAULT 0
-	);`)
+	// Получаем данные из переменных окружения
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	// Формируем строку подключения
+	psqlInfo := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=require",
+		host, port, user, password, dbname,
+	)
+
+	// Открываем подключение к базе данных
+	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Не удалось подключиться к базе:", err)
 	}
+
+	// Проверяем подключение
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("База не отвечает:", err)
+	}
+
+	// Сообщаем, что подключение прошло успешно
+	fmt.Println("Успешное подключение к базе Supabase!")
 
 	return db
 }
