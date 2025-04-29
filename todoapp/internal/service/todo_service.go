@@ -32,3 +32,25 @@ func (s *TodoService) UpdateTodo(todo models.Todo) error {
 func (s *TodoService) DeleteTodo(id int) error {
 	return s.repo.DeleteTodo(id)
 }
+
+func (s *TodoService) UpdateTodoStatus(todo models.Todo) error {
+	oldStatus := todo.Status
+
+	err := s.repo.UpdateTodo(todo)
+	if err != nil {
+		return err
+	}
+
+	if oldStatus != todo.Status {
+		err := s.repo.CreateHistoryRecord(todo.ID, todo.Status)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *TodoService) GetTodoHistory(todoID int) ([]models.TodoHistory, error) {
+	return s.repo.GetTodoHistory(todoID)
+}

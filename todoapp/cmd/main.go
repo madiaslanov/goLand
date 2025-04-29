@@ -25,7 +25,11 @@ func main() {
 
 	r.HandleFunc("/todos", todoController.GetAllTodos).Methods("GET")
 	r.HandleFunc("/todos", todoController.CreateTodo).Methods("POST")
+	r.HandleFunc("/todos/{id}", todoController.GetTodoByID).Methods("GET")
+	r.HandleFunc("/todos/{id}", todoController.UpdateTodo).Methods("PUT")
 	r.HandleFunc("/todos/{id}", todoController.DeleteTodo).Methods("DELETE")
+
+	r.HandleFunc("/todos/{id}/history", todoController.GetTodoHistory).Methods("GET")
 
 	log.Println("Server started on :8080")
 	http.ListenAndServe(":8080", r)

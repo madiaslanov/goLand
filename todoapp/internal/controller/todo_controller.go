@@ -101,3 +101,19 @@ func (c *TodoController) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func (c *TodoController) GetTodoHistory(w http.ResponseWriter, r *http.Request) {
+	idStr := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	history, err := c.service.GetTodoHistory(id)
+	if err != nil {
+		http.Error(w, "Failed to fetch todo history", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(history)
+}

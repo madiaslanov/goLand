@@ -67,3 +67,35 @@ func (r *TodoRepository) DeleteTodo(id int) error {
 	_, err := r.db.Exec(`DELETE FROM todos WHERE id = $1`, id)
 	return err
 }
+
+func (r *TodoRepository) CreateHistoryRecord(todoID int, status string) error {
+	_, err := r.db.Exec(`
+		INSERT INTO todo_history (todo_id, status)
+		VALUES ($1, $2)`,
+		todoID, status)
+	return err
+}
+
+func (r *TodoRepository) GetTodoHistory(todoID int) ([]models.TodoHistory, error) {
+	rows, err := r.db.Query(`
+		SELECT id, todo_id, status, updated_at
+		FROM todo_history
+		WHERE todo_id = $1
+		ORDER BY updated_at DESC`, todoID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var history []models.TodoHistory
+	for rows.Next() {
+		var record models.TodoHistory
+		if err := rows.Scan(&record.ID, &record.TodoID, &record.Status, &record.UpdatedAt); err != nil {
+			return nil, err
+		}
+		history = append(history, record)
+	}
+
+	return history, nil
+}
