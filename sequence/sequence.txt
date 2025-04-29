@@ -1,0 +1,22 @@
+Client => HTTP Router (mux) => TodoController.CreateTodo => TodoService.CreateTodo =>
+TodoRepository.Create => Database (SQLite) => TodoRepository => TodoService => TodoController => Client
+
+@startuml
+actor Client
+participant Router
+participant Controller
+participant Service
+participant Repository
+participant Database
+
+Client -> Router : POST /todos
+Router -> Controller : Route to CreateTodo
+Controller -> Service : CreateTodo(title)
+Service -> Repository : Create(todo)
+Repository -> Database : INSERT INTO todos
+Database --> Repository : OK
+Repository --> Service : nil
+Service --> Controller : nil
+Controller --> Client : 201 Created
+
+@enduml

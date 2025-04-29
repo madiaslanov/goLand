@@ -1,0 +1,22 @@
+Table users {
+  id serial [primary key]
+  username varchar(255) [unique]
+  password varchar(255)
+}
+
+Table todos {
+  id serial [primary key]
+  title varchar(255)
+  description text
+  status varchar(50) [default: 'pending']
+  user_id integer [ref: > users.id]
+  created_at timestamp [default: current_timestamp]
+  updated_at timestamp [default: current_timestamp]
+}
+
+Table todo_history {
+  id serial [primary key]
+  todo_id integer [ref: > todos.id]
+  status varchar(50)
+  updated_at timestamp [default: current_timestamp]
+}
