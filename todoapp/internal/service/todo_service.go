@@ -26,7 +26,22 @@ func (s *TodoService) CreateTodo(todo models.Todo) error {
 }
 
 func (s *TodoService) UpdateTodo(todo models.Todo) error {
-	return s.repo.UpdateTodo(todo)
+
+	oldTodo, err := s.repo.GetTodoByID(todo.ID)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.UpdateTodo(todo)
+	if err != nil {
+		return err
+	}
+
+	if oldTodo.Status != todo.Status {
+		return s.repo.AddTodoHistory(todo.ID, todo.Status)
+	}
+
+	return nil
 }
 
 func (s *TodoService) DeleteTodo(id int) error {

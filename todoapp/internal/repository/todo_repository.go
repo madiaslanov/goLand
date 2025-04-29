@@ -99,3 +99,9 @@ func (r *TodoRepository) GetTodoHistory(todoID int) ([]models.TodoHistory, error
 
 	return history, nil
 }
+func (r *TodoRepository) AddTodoHistory(todoID int, status string) error {
+	_, err := r.db.Exec(`
+        INSERT INTO todo_history (todo_id, status, updated_at)
+        VALUES ($1, $2, NOW())`, todoID, status)
+	return err
+}
